@@ -241,6 +241,16 @@ def _deterministic_plan(req: PlanRequest) -> WorkoutPlan:
 def _validate_plan_payload(payload: Any, req: PlanRequest) -> Optional[WorkoutPlan]:
     if not isinstance(payload, dict):
         return None
+    # Coerce common LLM type drift: rest/reps sometimes come back as ints.
+    try:
+        for d in payload.get("days", []) or []:
+            for e in d.get("exercises", []) or []:
+                if "rest" in e and not isinstance(e["rest"], str):
+                    e["rest"] = f"{e['rest']}s"
+                if "reps" in e and not isinstance(e["reps"], str):
+                    e["reps"] = str(e["reps"])
+    except Exception:
+        pass
     try:
         plan = WorkoutPlan(**payload)
     except Exception as e:
