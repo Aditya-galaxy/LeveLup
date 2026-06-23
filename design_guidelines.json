@@ -1,0 +1,181 @@
+{
+  "app_name": "LevelUp",
+  "personality": "7 Dark-First Utility DARK",
+  "personality_one_liner": "A premium, gamified command center for self-improvement—restrained, tactical, and operational with a sharp edge.",
+  "color": {
+    "surface": "#0A0A0C",
+    "onSurface": "#FFFFFF",
+    "surfaceSecondary": "#15161A",
+    "onSurfaceSecondary": "#E0E2E7",
+    "surfaceTertiary": "#1C1D22",
+    "onSurfaceTertiary": "#8F939D",
+    "surfaceInverse": "#F4F5F8",
+    "onSurfaceInverse": "#0A0A0C",
+    "brand": "#534AB7",
+    "brandPrimary": "#534AB7",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#3E378A",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#252152",
+    "onBrandTertiary": "#A199FF",
+    "success": "#2E9F6E",
+    "onSuccess": "#FFFFFF",
+    "warning": "#E1902E",
+    "onWarning": "#1A1005",
+    "error": "#E5484D",
+    "onError": "#FFFFFF",
+    "info": "#477CE6",
+    "onInfo": "#FFFFFF",
+    "border": "#22242A",
+    "borderStrong": "#333740",
+    "divider": "#191A1F"
+  },
+  "typography": {
+    "displayFontFamily": "Inter",
+    "textFontFamily": "Inter",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous spacing. Empty space makes dense operational components feel premium, not cramped. Use strict flex rules; avoid manual top/left margins.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Use blur on bottom tab bar, sticky headers over scrolling feeds, bottom sheets, and the Pro Paywall modal.",
+      "Pair blur with a dark tint overlay (≥75% opacity) to maintain high contrast."
+    ],
+    "dont's": [
+      "Do not apply glassmorphism to normal feed cards or stats modules.",
+      "Do not blur primary buttons or input fields."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Onboarding",
+      "purpose": "A cinematic, immersive sequence to set baseline goals, establish tone, and dramatically reveal the user's starting rank (E - Awakened).",
+      "states": {
+        "loading": "Centered minimalist spinner with 'Calibrating system...' text.",
+        "empty": "N/A",
+        "error": "Failed to sync rank. 'System Error: Tap to Retry'."
+      },
+      "layout": "Full-bleed screens with dark, atmospheric visual elements. Use a sticky primary CTA at the bottom ('Continue'). Form elements like stat inputs must be clean, single-column rows with subtle borders. The final Rank Reveal uses the 'aura_background' image wrapped in a heavy top-to-bottom gradient scrim."
+    },
+    {
+      "name": "Home",
+      "purpose": "The gamified command center displaying rank, aura, daily XP progress, today's 3 missions, and critical System Alerts.",
+      "states": {
+        "loading": "Skeleton loader for the hero rank card and 3 mission modules.",
+        "empty": "N/A - the system always generates at least 3 daily missions.",
+        "error": "Failed to load feed - display retry button in center."
+      },
+      "layout": "Vertical scroll. Top section: Hero card containing Rank Badge, Level/XP Bar, and Aura. Followed by a 'System Alert' banner (borderStrong + brandTertiary background). Next: A bento-style grid of 'Today's 3 Missions' with quick-complete buttons (trigger XP haptic animation). Bottom: Weekly calendar summary strip."
+    },
+    {
+      "name": "Missions",
+      "purpose": "A tactical checklist of daily, weekly, and custom missions with detailed breakdowns and completion status.",
+      "states": {
+        "loading": "Skeleton list rows.",
+        "empty": "Use 'workout_banner' with an overlaid message: 'No Active Missions. Request AI Coach for new tasks.'",
+        "error": "Failed to sync missions. 'Network sync failed'."
+      },
+      "layout": "Segmented control at the top (Daily / Weekly / Custom). Below it, a vertical list of mission cards. Each card uses surfaceSecondary with left-aligned icons, title, XP reward, and a right-aligned complete circle (checkbox). Clicking opens a bottom sheet with mission details, penalties for missing, and a large primary CTA to Complete."
+    },
+    {
+      "name": "Log",
+      "purpose": "The quantitative tracker for nutrition (macros/water) and daily habits (sleep, reading, recovery).",
+      "states": {
+        "loading": "Spinner in the center of the ring components.",
+        "empty": "Use 'food_scan_placeholder' illustration indicating 'Log your first meal to initialize nutrition tracking.'",
+        "error": "Tracker offline. Retry."
+      },
+      "layout": "Two-column grid at the top for Nutrition rings (Protein, Calories) and a wide horizontal bar for Water. Below, a vertical stack of Habit Toggle rows (Sleep, Reading, Recovery) using large pill-like switches. Include a floating action button (FAB) for adding new meals or habits."
+    },
+    {
+      "name": "Analytics",
+      "purpose": "Deep-dive performance metrics displaying stat levels (Strength, Intelligence, etc.) and XP growth over time.",
+      "states": {
+        "loading": "Chart skeletons.",
+        "empty": "Display 'Insufficient data for analysis. Keep logging.'",
+        "error": "Failed to fetch analytics."
+      },
+      "layout": "Radar chart or stacked horizontal bars mapping Strength/Intelligence/Discipline/Charisma/Creativity/Vitality (0-100). Below this, a line chart for 'XP over time' (using Reanimated for drawing animation). Cards are dense, border-driven, and highly analytical."
+    },
+    {
+      "name": "Profile",
+      "purpose": "The user's legacy: showcasing avatar, highest rank, total XP, aura, longest streak, and earned achievements.",
+      "states": {
+        "loading": "Skeleton avatar and stat grid.",
+        "empty": "N/A",
+        "error": "Unable to load profile data."
+      },
+      "layout": "Top section: Large Avatar overlaid on the 'aura_background' cover image (using gradient scrim). Bold typography for Name, Rank, Level. Below: A 3-column grid for key stats (Longest Streak, Total XP, Missions). Bottom section: A horizontal scrolling grid of 'Achievements' badges."
+    },
+    {
+      "name": "Paywall",
+      "purpose": "A premium modal to upsell LevelUp Pro, highlighting AI Food Scan and advanced analytics.",
+      "states": {
+        "loading": "Validating purchase...",
+        "empty": "N/A",
+        "error": "Transaction failed. Try again."
+      },
+      "layout": "Full-screen modal overlaid with glassmorphism. Centerpiece uses the 'workout_banner' or custom Pro graphic. Large, persuasive typography. Bulleted list of Pro features with checkmarks. Sticky bottom primary CTA 'Unlock Apex Status' spanning full width."
+    }
+  ],
+  "images": {
+    "aura_background": {
+      "url": "https://images.unsplash.com/photo-1563089145-599997674d42?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjBhdXJhJTIwZ2xvd2luZyUyMHB1cnBsZSUyMGR1c3QlMjB0ZXh0dXJlfGVufDB8fHx8MTc4MjIxNzkxOXww&ixlib=rb-4.1.0&q=85",
+      "alt": "neon pink and purple light particles aura"
+    },
+    "food_scan_placeholder": {
+      "url": "https://images.unsplash.com/photo-1649067846117-2d71b76be1e0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxoZWFsdGh5JTIwZm9vZCUyMGJvd2wlMjBkYXJrJTIwYmFja2dyb3VuZCUyMHN0dWRpbyUyMHBob3RvZ3JhcGh5fGVufDB8fHx8MTc4MjIxNzkxOHww&ixlib=rb-4.1.0&q=85",
+      "alt": "healthy dark aesthetic food scan placeholder"
+    },
+    "workout_banner": {
+      "url": "https://images.unsplash.com/photo-1672344048213-76b6e77304bd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwYmxhY2slMjBkdW1iYmVsbCUyMGd5bSUyMGFlc3RoZXRpYyUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc4MjIxNzkxOHww&ixlib=rb-4.1.0&q=85",
+      "alt": "minimalist dark aesthetic dumbbell gym background"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Theme Strategy: Stick strictly to the defined Dark-First Utility palette (#0A0A0C base, #534AB7 accent). Do not introduce any neon, gradients, or fantasy game cliches.",
+    "Typography: Use 'Inter' system font for a crisp, Linear/Things 3 premium look. Never use bold heavier than weight 500.",
+    "Component Structure: Favor clear, sharp cards with 1pt `border` or `borderStrong` rather than heavy drop shadows (Shadow tier 0).",
+    "Image Handling: Any background image (like aura_background in Profile/Onboarding) MUST have a vertical gradient scrim layered between the image and text (from transparent to at least 75% surfaceInverse/surface).",
+    "Terminology: Strictly adhere to app terminology—'System Alert', 'Missions', 'AI Coach'. Avoid 'quests' or generic game terms.",
+    "Glassmorphism: Use it specifically for sticky elements (tab bar, headers, Pro Paywall modal) paired with a heavy dark tint (opacity >= 75%) to maintain text readability.",
+    "Interaction: Make completing a mission feel tactical and instant, with haptic feedback implemented on the check action. Avoid slow cinematic animations for daily log actions."
+  ]
+}
