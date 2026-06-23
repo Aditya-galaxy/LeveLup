@@ -1,30 +1,36 @@
-import { Text, View, StyleSheet, Image } from "react-native";
-
-const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+// LevelUp entry — redirects to onboarding or main tabs.
+import { useEffect } from "react";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { Redirect } from "expo-router";
+import { useStore } from "@/src/store/levelup";
+import { colors } from "@/src/theme";
 
 export default function Index() {
-  console.log(EXPO_PUBLIC_BACKEND_URL, "EXPO_PUBLIC_BACKEND_URL");
+  const { state } = useStore();
 
-  return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/images/app-image.png")}
-        style={styles.image}
-      />
-    </View>
+  // Tiny delay for store hydration
+  useEffect(() => {}, []);
+
+  if (!state) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={colors.brand} />
+      </View>
+    );
+  }
+
+  return state.onboarded ? (
+    <Redirect href="/(tabs)" />
+  ) : (
+    <Redirect href="/onboarding" />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
-    backgroundColor: "#0c0c0c",
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
   },
 });
