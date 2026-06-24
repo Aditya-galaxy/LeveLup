@@ -1,17 +1,25 @@
-// Paywall — LevelUp Pro upsell.
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+// Paywall — glass premium plan cards.
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useStore } from "@/src/store/levelup";
-import { colors, font, radius, spacing } from "@/src/theme";
+import { GlassCard, GlassButton, StatusPill } from "@/src/components/Glass";
+import { colors, radius, spacing, typography } from "@/src/theme";
 
 const PRO_FEATURES = [
-  "AI Food Scan — photo → macros estimate",
-  "AI Plan Generation — custom periodized programming",
-  "Custom missions & directives",
-  "Advanced analytics & adherence forensics",
-  "Aura Farming, Boss challenges, full workout library",
+  { icon: "scan-outline", title: "AI Food Scan", body: "Photo → macros estimate in seconds." },
+  { icon: "construct-outline", title: "AI Plan Generation", body: "Periodized programming from your AI Coach." },
+  { icon: "options-outline", title: "Custom Missions", body: "Define your own directives." },
+  { icon: "analytics-outline", title: "Advanced Analytics", body: "Adherence forensics and trend depth." },
+  { icon: "trophy-outline", title: "Aura Farming & Bosses", body: "Full workout library and weekly challenges." },
 ];
 
 export default function Paywall() {
@@ -19,7 +27,6 @@ export default function Paywall() {
   const { state, setPro } = useStore();
 
   const subscribe = (productId: string) => {
-    // Preview-only entitlement flip. In production, RevenueCat purchase + entitlement check.
     console.log("subscribe", productId);
     setPro(true);
     router.back();
@@ -27,69 +34,124 @@ export default function Paywall() {
 
   return (
     <SafeAreaView style={styles.root} edges={["top"]}>
+      {/* Ambient glow */}
+      <View style={styles.glowWrap} pointerEvents="none">
+        <LinearGradient
+          colors={["rgba(83,74,183,0.42)", "rgba(83,74,183,0)"]}
+          style={styles.glow}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Pressable
-          testID="paywall-close"
-          onPress={() => router.back()}
-          style={styles.close}
-        >
-          <Ionicons name="close" size={20} color={colors.onSurface} />
-        </Pressable>
-
-        <Text style={styles.eyebrow}>LEVELUP PRO</Text>
-        <Text style={styles.headline}>Unlock the AI Coach.</Text>
-        <Text style={styles.body}>
-          Pro grants access to AI-driven food scans, custom periodized plans,
-          custom missions, and full analytics.
-        </Text>
-
-        <View style={styles.features}>
-          {PRO_FEATURES.map((f) => (
-            <View key={f} style={styles.feature}>
-              <Ionicons name="checkmark-circle" size={18} color={colors.brand} />
-              <Text style={styles.featureText}>{f}</Text>
-            </View>
-          ))}
+        <View style={styles.headerRow}>
+          <StatusPill label="LEVELUP PRO" tone="accent" />
+          <Pressable
+            testID="paywall-close"
+            onPress={() => router.back()}
+            style={styles.close}
+            hitSlop={12}
+          >
+            <Ionicons name="close" size={22} color={colors.textSecondary} />
+          </Pressable>
         </View>
 
-        <Pressable
-          testID="paywall-monthly"
-          style={[styles.plan, styles.planMonthly]}
-          onPress={() => subscribe("com.levelup.pro.monthly")}
-        >
-          <View>
-            <Text style={styles.planTitle}>Monthly</Text>
-            <Text style={styles.planMeta}>com.levelup.pro.monthly</Text>
-          </View>
-          <Text style={styles.planPrice}>$4.99/mo</Text>
-        </Pressable>
+        <Text style={styles.headline}>Unlock the full system.</Text>
+        <Text style={styles.body}>
+          AI-driven food scans, custom periodized plans, and the full mission
+          library. Cancel anytime.
+        </Text>
 
+        {/* Annual hero plan */}
         <Pressable
           testID="paywall-annual"
-          style={[styles.plan, styles.planAnnual]}
           onPress={() => subscribe("com.levelup.pro.annual")}
         >
-          <View>
-            <Text style={styles.planTitle}>Annual · 7-day free trial</Text>
-            <Text style={styles.planMeta}>com.levelup.pro.annual</Text>
-          </View>
-          <Text style={styles.planPrice}>$39.99/yr</Text>
+          <GlassCard
+            elevated
+            style={styles.heroPlan}
+            borderColor="rgba(83,74,183,0.6)"
+          >
+            <LinearGradient
+              colors={["rgba(83,74,183,0.22)", "rgba(83,74,183,0.04)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+            <View style={styles.planTopRow}>
+              <StatusPill label="BEST VALUE · 7-DAY FREE TRIAL" tone="accent" small />
+              <Text style={styles.savings}>Save 33%</Text>
+            </View>
+            <Text style={styles.planTitle}>Annual</Text>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceMain}>$39.99</Text>
+              <Text style={styles.priceUnit}>/year</Text>
+            </View>
+            <Text style={styles.planMeta}>~$3.33/month · billed yearly</Text>
+            <View style={styles.planCTA}>
+              <Text style={styles.planCTAText}>Start free trial</Text>
+              <Ionicons name="arrow-forward" size={16} color="#0B0C12" />
+            </View>
+          </GlassCard>
         </Pressable>
+
+        {/* Monthly */}
+        <Pressable
+          testID="paywall-monthly"
+          onPress={() => subscribe("com.levelup.pro.monthly")}
+        >
+          <GlassCard style={styles.monthlyPlan}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <View>
+                <Text style={styles.monthlyTitle}>Monthly</Text>
+                <Text style={styles.planMeta}>com.levelup.pro.monthly</Text>
+              </View>
+              <Text style={styles.monthlyPrice}>$4.99<Text style={styles.monthlyUnit}>/mo</Text></Text>
+            </View>
+          </GlassCard>
+        </Pressable>
+
+        {/* Features */}
+        <Text style={styles.sectionTitle}>What you unlock</Text>
+        <GlassCard style={{ marginTop: spacing.md }}>
+          {PRO_FEATURES.map((f, i) => (
+            <View
+              key={f.title}
+              style={[
+                styles.featureRow,
+                i !== PRO_FEATURES.length - 1 && {
+                  borderBottomWidth: StyleSheet.hairlineWidth,
+                  borderBottomColor: colors.glassBorder,
+                },
+              ]}
+            >
+              <View style={styles.featureIcon}>
+                <Ionicons name={f.icon as any} size={18} color="#C9C3FF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.featureTitle}>{f.title}</Text>
+                <Text style={styles.featureBody}>{f.body}</Text>
+              </View>
+            </View>
+          ))}
+        </GlassCard>
 
         <Pressable
           testID="paywall-restore"
           style={styles.linkRow}
-          onPress={() => {
-            console.log("restore");
-          }}
+          onPress={() => console.log("restore")}
         >
-          <Text style={styles.linkText}>Restore purchases</Text>
+          <Text style={styles.restoreText}>Restore purchases</Text>
         </Pressable>
 
         <Text style={styles.disclosure}>
           Subscriptions auto-renew until cancelled in your App Store account.
-          Cancel anytime. Review the Terms of Service and Privacy Policy from
-          your Profile.
+          Cancel anytime.{"  "}
+          <Text style={styles.legalLink}>Terms</Text>
+          {"  ·  "}
+          <Text style={styles.legalLink}>Privacy</Text>
         </Text>
 
         {state.pro && (
@@ -97,66 +159,133 @@ export default function Paywall() {
             Pro is currently active on this device.
           </Text>
         )}
+
+        <GlassButton
+          label="Continue free"
+          variant="ghost"
+          onPress={() => router.back()}
+          style={{ marginTop: spacing.lg }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.surface },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxxl },
-  close: { alignSelf: "flex-end" },
-  eyebrow: {
-    color: colors.brand,
-    fontSize: font.sm,
-    letterSpacing: 2,
-    fontWeight: "500",
-    marginTop: spacing.lg,
+  root: { flex: 1, backgroundColor: colors.bgDeep },
+  glowWrap: { position: "absolute", top: 0, left: 0, right: 0, height: 380 },
+  glow: { flex: 1 },
+  scroll: { padding: spacing.lg, paddingBottom: 60 },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
+  close: { padding: 4 },
   headline: {
-    color: colors.onSurface,
-    fontSize: 32,
-    fontWeight: "500",
-    marginTop: spacing.sm,
-    lineHeight: 38,
+    ...typography.display,
+    color: colors.text,
+    marginTop: spacing.xl,
   },
   body: {
-    color: colors.onSurfaceSecondary,
-    fontSize: font.lg,
-    lineHeight: 24,
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 22,
     marginTop: spacing.md,
   },
-  features: { marginTop: spacing.xl, gap: spacing.md },
-  feature: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
-  featureText: { color: colors.onSurfaceSecondary, fontSize: font.base, flex: 1 },
-  plan: {
+  heroPlan: { marginTop: spacing.xl, overflow: "hidden" },
+  planTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
+  },
+  savings: {
+    color: "#7DEABF",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+  },
+  planTitle: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: "700",
     marginTop: spacing.md,
   },
-  planMonthly: { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
-  planAnnual: {
-    backgroundColor: colors.brandTertiary,
-    borderColor: colors.brand,
+  priceRow: { flexDirection: "row", alignItems: "flex-end", marginTop: 6 },
+  priceMain: {
+    color: colors.text,
+    fontSize: 40,
+    fontWeight: "800",
+    letterSpacing: -1,
+    fontVariant: ["tabular-nums"],
   },
-  planTitle: { color: colors.onSurface, fontSize: font.lg, fontWeight: "500" },
-  planMeta: { color: colors.onSurfaceTertiary, fontSize: font.sm, marginTop: 2 },
-  planPrice: { color: colors.onSurface, fontSize: font.xl, fontWeight: "500" },
+  priceUnit: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    fontWeight: "500",
+    marginBottom: 8,
+    marginLeft: 6,
+  },
+  planMeta: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+  planCTA: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: colors.text,
+    paddingVertical: 14,
+    borderRadius: radius.md,
+    marginTop: spacing.lg,
+  },
+  planCTAText: { color: "#0B0C12", fontWeight: "700", fontSize: 16 },
+  monthlyPlan: { marginTop: spacing.md },
+  monthlyTitle: { color: colors.text, fontSize: 17, fontWeight: "600" },
+  monthlyPrice: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  monthlyUnit: { color: colors.textMuted, fontSize: 13, fontWeight: "500" },
+  sectionTitle: {
+    color: colors.textMuted,
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 2,
+    marginTop: spacing.xl,
+  },
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  featureIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: colors.accentSoft,
+    borderWidth: 1,
+    borderColor: "rgba(83,74,183,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureTitle: { color: colors.text, fontSize: 15, fontWeight: "600" },
+  featureBody: { color: colors.textSecondary, fontSize: 13, marginTop: 2 },
   linkRow: { alignItems: "center", paddingVertical: spacing.lg },
-  linkText: { color: colors.brand, fontSize: font.base },
+  restoreText: { color: "#C9C3FF", fontSize: 14, fontWeight: "500" },
   disclosure: {
-    color: colors.onSurfaceTertiary,
-    fontSize: font.sm,
-    lineHeight: 18,
+    color: colors.textMuted,
+    fontSize: 11,
+    lineHeight: 16,
     textAlign: "center",
+    paddingHorizontal: spacing.md,
   },
+  legalLink: { color: colors.textSecondary, textDecorationLine: "underline" },
   proStatus: {
     color: colors.success,
-    fontSize: font.base,
+    fontSize: 14,
+    fontWeight: "600",
     textAlign: "center",
     marginTop: spacing.lg,
   },

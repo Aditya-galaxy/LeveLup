@@ -1,23 +1,56 @@
-// Bottom tab layout — Home, Missions, Log, Analytics, Profile.
+// Glass bottom tab bar with frosted blur.
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@/src/theme";
+import { Platform, StyleSheet, View } from "react-native";
+import { BlurView } from "expo-blur";
+import { colors, radius } from "@/src/theme";
+
+function GlassTabBackground() {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {Platform.OS !== "web" && (
+        <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+      )}
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: "rgba(8,9,14,0.78)" },
+        ]}
+      />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            borderTopColor: colors.glassBorder,
+            borderTopWidth: StyleSheet.hairlineWidth,
+          },
+        ]}
+      />
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarBackground: () => <GlassTabBackground />,
         tabBarStyle: {
-          backgroundColor: colors.surfaceSecondary,
-          borderTopColor: colors.divider,
-          borderTopWidth: 1,
-          height: 84,
-          paddingTop: 8,
+          position: "absolute",
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 88,
+          paddingTop: 10,
         },
-        tabBarActiveTintColor: colors.onSurface,
-        tabBarInactiveTintColor: colors.onSurfaceTertiary,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "500" },
+        tabBarActiveTintColor: "#FFFFFF",
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 10.5,
+          fontWeight: "600",
+          letterSpacing: 0.3,
+        },
       }}
     >
       <Tabs.Screen
