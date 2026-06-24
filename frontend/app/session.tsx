@@ -25,11 +25,14 @@ import {
   todayDayIndex,
 } from "@/src/domain/session";
 import { GlassCard, GlassButton, ProgressBar, StatusPill } from "@/src/components/Glass";
+import { ExerciseIllustration, pickKind } from "@/src/components/ExerciseIllustration";
 import { colors, radius, spacing, typography } from "@/src/theme";
+
+const TODAY_KEY = () => new Date().toISOString().slice(0, 10);
 
 export default function SessionPlayer() {
   const router = useRouter();
-  const { state, setState, completeMission } = useStore();
+  const { state, setState, completeMission, saveActiveSession } = useStore();
   const onb = state.profile.onboarding || ({} as any);
   const sessionLengthMin = onb.sessionLength || 45;
 
@@ -42,12 +45,30 @@ export default function SessionPlayer() {
   const [showQuit, setShowQuit] = useState(false);
   const [done, setDone] = useState(false);
   const [rankUpMsg, setRankUpMsg] = useState<string | null>(null);
+  const [resumed, setResumed] = useState(false);
 
-  // Build / fetch plan once
+  // Build / fetch plan once. Resume active session if any.
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
+        // Try resume first
+        const active = state.activeSession;
+        if (
+          active &&
+          Array.isArray(active.steps) &&
+          active.steps.length > 0 &&
+          active.sessionDayKey === TODAY_KEY()
+        ) {
+          if (!alive) return;
+          setSteps(active.steps as SessionStep[]);
+          setIdx(Math.min(active.idx, active.steps.length - 1));
+          setRemaining(active.remaining);
+          setResumed(true);
+          setLoading(false);
+          return;
+        }
+        // Fresh: load plan + build
         let plan = state.workoutPlan;
         if (!plan) {
           const rank = rankFromXP(state.xp);
@@ -89,6 +110,18 @@ export default function SessionPlayer() {
       alive = false;
     };
   }, []);
+
+  // Persist active session on every tick / change (debounced via remaining state).
+  useEffect(() => {
+    if (loading || done || steps.length === 0) return;
+    saveActiveSession({
+      steps,
+      idx,
+      remaining,
+      startedAt: Date.now(),
+      sessionDayKey: TODAY_KEY(),
+    });
+  }, [idx, remaining, steps, loading, done]);
 
   // Tick timer
   useEffect(() => {
@@ -141,6 +174,7 @@ export default function SessionPlayer() {
   function finishSession() {
     setDone(true);
     setPaused(true);
+    saveActiveSession(null);
     // Find the primary mission and complete it.
     const primary = state.missions.find((m) => m.tier === "primary");
     if (primary) {
@@ -164,6 +198,7 @@ export default function SessionPlayer() {
 
   function quit() {
     setShowQuit(false);
+    saveActiveSession(null);
     router.back();
   }
 
@@ -253,7 +288,29 @@ export default function SessionPlayer() {
       <View style={styles.body}>
         <StepBody step={step} />
 
-        {/* Big timer ring */}
+        {/* Animated exercise illustration */}
+        <View style={styles.illustrationWrap}>
+          <ExerciseIllustration
+            kind={
+              step.kind === "rest"
+                ? "rest"
+                : step.kind === "warmup" || step.kind === "cooldown"
+                ? "stretch"
+                : pickKind((step as any).exerciseName)
+            }
+            playing={!paused}
+            size={170}
+            accent={
+              step.kind === "rest"
+                ? colors.success
+                : step.kind === "warmup" || step.kind === "cooldown"
+                ? colors.warning
+                : colors.accent
+            }
+          />
+        </View>
+
+        {/* Big timer */}
         <View style={styles.timerWrap}>
           <CircularPulse paused={paused} accent={step.kind === "rest" ? colors.success : colors.accent} />
           <Text style={styles.timer}>{formatMMSS(remaining)}</Text>
@@ -549,9 +606,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   timerWrap: {
-    marginTop: spacing.xxl,
+    marginTop: spacing.md,
     width: 220,
     height: 220,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  illustrationWrap: {
+    marginTop: spacing.lg,
     alignItems: "center",
     justifyContent: "center",
   },

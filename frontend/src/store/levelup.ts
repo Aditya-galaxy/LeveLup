@@ -90,6 +90,14 @@ export interface SystemAlert {
   dismissed?: boolean;
 }
 
+export interface ActiveSession {
+  steps: any[]; // SessionStep[] but kept loose to avoid circular import
+  idx: number;
+  remaining: number;
+  startedAt: number; // epoch ms
+  sessionDayKey: string; // YYYY-MM-DD
+}
+
 export interface AppState {
   onboarded: boolean;
   appUserId: string; // RevenueCat-style id
@@ -115,6 +123,7 @@ export interface AppState {
   achievements: string[];
   alerts: SystemAlert[];
   workoutPlan?: any;
+  activeSession?: ActiveSession | null;
   totalCompletions: number;
   perfectWeeks: number;
 }
@@ -396,6 +405,12 @@ export function useStore() {
     []
   );
 
+  const saveActiveSession = useCallback((s: ActiveSession | null) => {
+    _state = { ..._state, activeSession: s };
+    persist();
+    notify();
+  }, []);
+
   const resetAll = useCallback(async () => {
     _state = { ...DEFAULT_STATE, appUserId: _state.appUserId };
     await AsyncStorage.removeItem(STORAGE_KEY);
@@ -416,6 +431,7 @@ export function useStore() {
     dismissAlert,
     setPro,
     addCustomMission,
+    saveActiveSession,
     resetAll,
   };
 }

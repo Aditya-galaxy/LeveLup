@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useStore } from "@/src/store/levelup";
 import { rankFromXP, levelFromXP } from "@/src/domain/xp";
 import { colors, font, radius, spacing } from "@/src/theme";
+import { requestNotificationPermissions, scheduleDailyReminders } from "@/src/notifications";
 
 const ALL_ACHIEVEMENTS = [
   "First Mission",
@@ -111,6 +112,21 @@ export default function Profile() {
             (Preview only) Pro: {state.pro ? "ON" : "OFF"}
           </Text>
           <Ionicons name="swap-horizontal" size={18} color={colors.onSurfaceTertiary} />
+        </Pressable>
+
+        <Text style={styles.section}>Notifications</Text>
+        <Pressable
+          testID="profile-enable-notifications"
+          style={styles.action}
+          onPress={async () => {
+            const ok = await requestNotificationPermissions();
+            if (ok) await scheduleDailyReminders();
+          }}
+        >
+          <Text style={styles.actionText}>
+            Enable System Alerts (8pm & 9pm)
+          </Text>
+          <Ionicons name="notifications-outline" size={18} color={colors.onSurfaceTertiary} />
         </Pressable>
 
         <Text style={styles.section}>Legal</Text>
