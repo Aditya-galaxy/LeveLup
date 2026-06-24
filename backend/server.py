@@ -388,7 +388,8 @@ async def generate_plan(
     req: PlanRequest,
     x_app_user_id: Optional[str] = Header(default=None, alias="x-app-user-id"),
 ):
-    _check_pro(x_app_user_id)
+    # AI-driven personalised plan is available to every user now.
+    # AI is the default path; deterministic fallback only if AI fails or is invalid.
 
     fallback = _deterministic_plan(req)
 

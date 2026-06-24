@@ -242,6 +242,32 @@ export default function Home() {
           </GlassCard>
         </View>
 
+        {/* Start session CTA */}
+        <Pressable
+          testID="home-start-session"
+          onPress={() => router.push("/session")}
+          style={styles.sessionCTA}
+        >
+          <LinearGradient
+            colors={["#FFFFFF", "#D9D9E3"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.sessionCTAInner}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sessionCTALabel}>TODAY · GUIDED SESSION</Text>
+              <Text style={styles.sessionCTATitle}>Start training</Text>
+              <Text style={styles.sessionCTAMeta}>
+                {state.profile.onboarding?.sessionLength || 45} min · timed steps · AI Coach
+              </Text>
+            </View>
+            <View style={styles.sessionCTAIcon}>
+              <Ionicons name="play" size={24} color="#0B0C12" />
+            </View>
+          </View>
+        </Pressable>
+
         {/* Missions */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Today{`’`}s Missions</Text>
@@ -577,5 +603,48 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.lg,
     fontSize: 12,
+  },
+  sessionCTA: {
+    marginTop: spacing.xl,
+    height: 92,
+    borderRadius: radius.lg,
+    overflow: "hidden",
+    shadowColor: "#fff",
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  sessionCTAInner: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+  },
+  sessionCTALabel: {
+    color: "#3E378A",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+  },
+  sessionCTATitle: {
+    color: "#0B0C12",
+    fontSize: 22,
+    fontWeight: "700",
+    marginTop: 2,
+    letterSpacing: -0.4,
+  },
+  sessionCTAMeta: {
+    color: "#3E378A",
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  sessionCTAIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#0B0C12",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

@@ -31,12 +31,16 @@ def test_premium_gate_food():
     assert r.json()["detail"]["code"] == "premium_required"
 
 
-def test_premium_gate_plan():
+def test_plan_generate_works_without_pro_header():
+    # AI plan generation is now available to every user.
     r = client.post("/api/plans/generate", json={
         "goal": "Build Muscle", "rank": "E", "equipment": ["Bodyweight only"],
         "daysPerWeek": 4, "sessionLength": 45
     })
-    assert r.status_code == 402
+    assert r.status_code == 200
+    body = r.json()
+    assert "plan" in body and body["plan"]["daysPerWeek"] == 4
+    assert body.get("source") in {"ai", "fallback"}
 
 
 def test_deterministic_plan_bodyweight():
