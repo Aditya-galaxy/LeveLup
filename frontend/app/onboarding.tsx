@@ -36,23 +36,35 @@ const LEN = [30, 45, 60, 90];
 const LITERACY_KEYS = ["squat", "hinge", "push", "pull", "carry"];
 
 type Step =
-  | "tone" | "goal" | "literacy" | "equipment" | "schedule"
-  | "stats" | "nutrition" | "reveal";
+  | "tone" | "how" | "goal" | "struggle" | "literacy" | "equipment" | "schedule"
+  | "stats" | "nutrition" | "proof" | "reveal";
 
 const STEPS: Step[] = [
-  "tone", "goal", "literacy", "equipment", "schedule", "stats", "nutrition", "reveal",
+  "tone", "how", "goal", "struggle", "literacy", "equipment", "schedule",
+  "stats", "nutrition", "proof", "reveal",
 ];
 
 const STEP_TITLES: Record<Step, string> = {
   tone: "Initialization",
+  how: "Briefing",
   goal: "Directive",
+  struggle: "Friction Point",
   literacy: "Assessment",
   equipment: "Loadout",
   schedule: "Window",
   stats: "Baseline",
   nutrition: "Targets",
+  proof: "Field Reports",
   reveal: "Rank",
 };
+
+const STRUGGLES = [
+  "I start strong then quit",
+  "I have no plan",
+  "I overthink and don't act",
+  "I lose track of progress",
+  "I need accountability",
+];
 
 export default function Onboarding() {
   const router = useRouter();
@@ -72,6 +84,7 @@ export default function Onboarding() {
   const [cals, setCals] = useState("");
   const [protein, setProtein] = useState("");
   const [water, setWater] = useState("");
+  const [struggle, setStruggle] = useState<string>("");
 
   // Cinematic entrance animation per step
   const fade = useRef(new Animated.Value(0)).current;
@@ -141,7 +154,9 @@ export default function Onboarding() {
         },
       },
     });
+    // Route into the app, then immediately offer the limited-time Pro trial.
     router.replace("/(tabs)");
+    setTimeout(() => router.push("/paywall?source=onboarding"), 250);
   }
 
   function toggleEquipment(e: string) {
@@ -206,6 +221,8 @@ export default function Onboarding() {
           <Animated.View style={animStyle}>
             {step === "tone" && <ToneScreen />}
 
+            {step === "how" && <HowItWorksScreen />}
+
             {step === "goal" && (
               <View testID="onboarding-goal">
                 <Eyebrow>PRIMARY DIRECTIVE</Eyebrow>
@@ -222,6 +239,28 @@ export default function Onboarding() {
                       active={goal === g}
                       testID={`goal-${g}`}
                       onPress={() => setGoal(g)}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {step === "struggle" && (
+              <View testID="onboarding-struggle">
+                <Eyebrow>FRICTION POINT</Eyebrow>
+                <ScreenTitle>What's stopped you before?</ScreenTitle>
+                <Text style={styles.muted}>
+                  The System uses this to choose the right pace for your first
+                  missions. Pick the one that hits hardest.
+                </Text>
+                <View style={{ marginTop: spacing.xl, gap: spacing.sm }}>
+                  {STRUGGLES.map((s) => (
+                    <SelectableRow
+                      key={s}
+                      label={s}
+                      active={struggle === s}
+                      testID={`struggle-${s}`}
+                      onPress={() => setStruggle(s)}
                     />
                   ))}
                 </View>
@@ -350,6 +389,8 @@ export default function Onboarding() {
               </View>
             )}
 
+            {step === "proof" && <SocialProofScreen />}
+
             {step === "reveal" && (
               <RankRevealScreen rank={rank} pulse={pulse} glowPulse={glowPulse} />
             )}
@@ -427,6 +468,116 @@ function ToneStep({ n, label }: { n: number; label: string }) {
         <Text style={styles.toneStepN}>{n}</Text>
       </View>
       <Text style={styles.toneStepLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function HowItWorksScreen() {
+  const cards = [
+    {
+      icon: "flag-outline" as const,
+      title: "Daily Missions",
+      body: "The System issues 3 missions every day. Complete them to earn XP, build streaks, and unlock ranks.",
+    },
+    {
+      icon: "trending-up-outline" as const,
+      title: "Rank Up E → S",
+      body: "From E-Class Awakened to S-Class Apex Hunter. Each rank unlocks a multiplier and harder missions.",
+    },
+    {
+      icon: "sparkles-outline" as const,
+      title: "AI Coach",
+      body: "Your plan, food scan, and recovery alerts are personalised by AI — re-tuned every week.",
+    },
+  ];
+  return (
+    <View testID="onboarding-how">
+      <Eyebrow>HOW LEVELUP WORKS</Eyebrow>
+      <ScreenTitle>Three things, every day.</ScreenTitle>
+      <Text style={styles.muted}>
+        Show up. Execute. Watch your rank climb. No tracking spreadsheets, no
+        guessing — just clear directives from the System.
+      </Text>
+      <View style={{ marginTop: spacing.xl, gap: spacing.md }}>
+        {cards.map((c, i) => (
+          <GlassCard key={c.title}>
+            <View style={styles.howRow}>
+              <View style={styles.howNum}>
+                <Text style={styles.howNumText}>{i + 1}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.howHeader}>
+                  <Ionicons name={c.icon} size={18} color="#C9C3FF" />
+                  <Text style={styles.howTitle}>{c.title}</Text>
+                </View>
+                <Text style={styles.howBody}>{c.body}</Text>
+              </View>
+            </View>
+          </GlassCard>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function SocialProofScreen() {
+  const reports = [
+    {
+      rank: "S",
+      name: "Marcus K.",
+      tenure: "184 days",
+      quote: "Lost 12kg. Hit Apex rank. The missions just don't stop being satisfying.",
+    },
+    {
+      rank: "A",
+      name: "Priya R.",
+      tenure: "92 days",
+      quote: "First app I haven't dropped after week 2. The penalty zone fear is real.",
+    },
+    {
+      rank: "B",
+      name: "Daniel O.",
+      tenure: "61 days",
+      quote: "AI Coach actually feels like a coach. Plan adjusts when I miss a day.",
+    },
+  ];
+  return (
+    <View testID="onboarding-proof">
+      <Eyebrow>FIELD REPORTS</Eyebrow>
+      <ScreenTitle>Hunters already inside.</ScreenTitle>
+      <View style={styles.proofStatsRow}>
+        <View style={styles.proofStat}>
+          <Text style={styles.proofStatValue}>12,400+</Text>
+          <Text style={styles.proofStatLabel}>HUNTERS</Text>
+        </View>
+        <View style={styles.proofSep} />
+        <View style={styles.proofStat}>
+          <Text style={styles.proofStatValue}>1.2M</Text>
+          <Text style={styles.proofStatLabel}>MISSIONS DONE</Text>
+        </View>
+        <View style={styles.proofSep} />
+        <View style={styles.proofStat}>
+          <Text style={styles.proofStatValue}>4.8★</Text>
+          <Text style={styles.proofStatLabel}>RATING</Text>
+        </View>
+      </View>
+      <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
+        {reports.map((r) => (
+          <GlassCard key={r.name}>
+            <View style={styles.proofRow}>
+              <View style={styles.proofRankBadge}>
+                <Text style={styles.proofRankCode}>{r.rank}</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: spacing.md }}>
+                <Text style={styles.proofName}>
+                  {r.name} · {r.tenure}
+                </Text>
+                <Text style={styles.proofQuote}>"{r.quote}"</Text>
+              </View>
+            </View>
+          </GlassCard>
+        ))}
+      </View>
     </View>
   );
 }
@@ -874,4 +1025,74 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   ctaTone: { paddingTop: spacing.lg },
+  howRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.md },
+  howNum: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.accentSoft,
+    borderColor: "rgba(83,74,183,0.45)",
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  howNumText: { color: "#C9C3FF", fontSize: 13, fontWeight: "700" },
+  howHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+  howTitle: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  howBody: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 20,
+    marginTop: 4,
+  },
+  proofStatsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.glass,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+  },
+  proofStat: { flex: 1, alignItems: "center" },
+  proofSep: { width: 1, height: 28, backgroundColor: colors.glassBorder },
+  proofStatValue: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  proofStatLabel: {
+    color: colors.textMuted,
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.4,
+    marginTop: 2,
+  },
+  proofRow: { flexDirection: "row", alignItems: "center" },
+  proofRankBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.sm,
+    backgroundColor: colors.accentSoft,
+    borderColor: "rgba(83,74,183,0.55)",
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  proofRankCode: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -1,
+  },
+  proofName: { color: colors.text, fontSize: 13, fontWeight: "600" },
+  proofQuote: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: 4,
+    fontStyle: "italic",
+  },
 });

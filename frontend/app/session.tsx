@@ -25,6 +25,7 @@ import {
   todayDayIndex,
 } from "@/src/domain/session";
 import { GlassCard, GlassButton, ProgressBar, StatusPill } from "@/src/components/Glass";
+import { fireRankUpAlert } from "@/src/notifications";
 import { colors, radius, spacing, typography } from "@/src/theme";
 
 const TODAY_KEY = () => new Date().toISOString().slice(0, 10);
@@ -63,6 +64,8 @@ export default function SessionPlayer() {
           setSteps(active.steps as SessionStep[]);
           setIdx(Math.min(active.idx, active.steps.length - 1));
           setRemaining(active.remaining);
+          // Resume always lands paused so the user reorients before continuing.
+          setPaused(true);
           setResumed(true);
           setLoading(false);
           return;
@@ -188,6 +191,8 @@ export default function SessionPlayer() {
           const r = checkRankUp(prevXP, prevXP + gain);
           if (r.ranked && r.to && r.from) {
             setRankUpMsg(RANK_UP_MESSAGE(r.from.code, r.to));
+            // Fire a local SYSTEM ALERT notification for the rank-up.
+            fireRankUpAlert(r.to.code).catch(() => {});
           }
         }
       }

@@ -23,6 +23,7 @@ import {
   RANK_UP_MESSAGE,
 } from "@/src/domain/xp";
 import { GlassCard, ProgressBar, StatusPill } from "@/src/components/Glass";
+import { fireRankUpAlert } from "@/src/notifications";
 import { colors, radius, spacing, typography } from "@/src/theme";
 
 export default function Home() {
@@ -92,6 +93,7 @@ export default function Home() {
       const r = checkRankUp(prevXP, newXP);
       if (r.ranked && r.to && r.from) {
         setRankUpMsg(RANK_UP_MESSAGE(r.from.code, r.to));
+        fireRankUpAlert(r.to.code).catch(() => {});
       }
     }
   };

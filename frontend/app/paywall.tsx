@@ -1,15 +1,10 @@
 // Paywall — glass premium plan cards.
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useState } from "react";
 import { useStore } from "@/src/store/levelup";
 import { GlassCard, GlassButton, StatusPill } from "@/src/components/Glass";
 import { colors, radius, spacing, typography } from "@/src/theme";
@@ -24,7 +19,30 @@ const PRO_FEATURES = [
 
 export default function Paywall() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ source?: string }>();
+  const fromOnboarding = params.source === "onboarding";
   const { state, setPro } = useStore();
+
+  // FOMO countdown: 24h from first paywall view, persisted via state.
+  const [remaining, setRemaining] = useState(0);
+  useEffect(() => {
+    if (!fromOnboarding) return;
+    const start = Date.now();
+    const end = start + 24 * 60 * 60 * 1000;
+    const id = setInterval(() => {
+      setRemaining(Math.max(0, end - Date.now()));
+    }, 1000);
+    setRemaining(end - start);
+    return () => clearInterval(id);
+  }, [fromOnboarding]);
+
+  const fmt = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const ss = s % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+  };
 
   const subscribe = (productId: string) => {
     console.log("subscribe", productId);
@@ -45,6 +63,16 @@ export default function Paywall() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {fromOnboarding && (
+          <View style={styles.fomoBanner} testID="paywall-fomo">
+            <View style={styles.fomoDot} />
+            <Text style={styles.fomoLabel}>FIRST-MISSION BONUS</Text>
+            <Text style={styles.fomoText}>
+              7-day Pro trial · expires in{" "}
+              <Text style={styles.fomoTimer}>{fmt(remaining)}</Text>
+            </Text>
+          </View>
+        )}
         <View style={styles.headerRow}>
           <StatusPill label="LEVELUP PRO" tone="accent" />
           <Pressable
@@ -288,5 +316,44 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
     marginTop: spacing.lg,
+  },
+  fomoBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.accentSoft,
+    borderColor: "rgba(83,74,183,0.45)",
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    marginBottom: spacing.md,
+    alignSelf: "flex-start",
+  },
+  fomoDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#C9C3FF",
+    shadowColor: "#C9C3FF",
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
+  },
+  fomoLabel: {
+    color: "#C9C3FF",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.6,
+  },
+  fomoText: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: "500",
+    marginLeft: 4,
+  },
+  fomoTimer: {
+    color: colors.text,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
 });
