@@ -25,7 +25,6 @@ import {
   todayDayIndex,
 } from "@/src/domain/session";
 import { GlassCard, GlassButton, ProgressBar, StatusPill } from "@/src/components/Glass";
-import { ExerciseIllustration, pickKind } from "@/src/components/ExerciseIllustration";
 import { colors, radius, spacing, typography } from "@/src/theme";
 
 const TODAY_KEY = () => new Date().toISOString().slice(0, 10);
@@ -287,28 +286,6 @@ export default function SessionPlayer() {
       {/* Main step card */}
       <View style={styles.body}>
         <StepBody step={step} />
-
-        {/* Animated exercise illustration */}
-        <View style={styles.illustrationWrap}>
-          <ExerciseIllustration
-            kind={
-              step.kind === "rest"
-                ? "rest"
-                : step.kind === "warmup" || step.kind === "cooldown"
-                ? "stretch"
-                : pickKind((step as any).exerciseName)
-            }
-            playing={!paused}
-            size={170}
-            accent={
-              step.kind === "rest"
-                ? colors.success
-                : step.kind === "warmup" || step.kind === "cooldown"
-                ? colors.warning
-                : colors.accent
-            }
-          />
-        </View>
 
         {/* Big timer */}
         <View style={styles.timerWrap}>
@@ -606,14 +583,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   timerWrap: {
-    marginTop: spacing.md,
+    marginTop: spacing.xxl,
     width: 220,
     height: 220,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  illustrationWrap: {
-    marginTop: spacing.lg,
     alignItems: "center",
     justifyContent: "center",
   },
